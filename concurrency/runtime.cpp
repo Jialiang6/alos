@@ -4,9 +4,12 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
+#include <chrono>
+#include <typeinfo>
 
 using namespace std;
 typedef unsigned long const ulc;
+const int debug = 0;
 
 template<typename Iter, typename T>
 struct accumulate_block {
@@ -23,34 +26,41 @@ T parallel_accumulate(Iter begin, Iter end, T init) {
     
     ulc min_per_thread = 25;
     ulc max_threads = (length + min_per_thread - 1) / min_per_thread;
-    cout << "max_threads: " << max_threads << endl;
+    if (debug) cout << "max_threads: " << max_threads << endl;
     ulc hardware_threads = thread::hardware_concurrency();
-    cout << "hardware_threads: " << hardware_threads << endl;
+    if (debug) cout << "hardware_threads: " << hardware_threads << endl;
     ulc num_threads = min(max_threads, hardware_threads != 0 ? hardware_threads : 2);
-    cout << "num_threads: " << num_threads << endl;
+    if (debug) cout << "num_threads: " << num_threads << endl;
     ulc block_size = length / num_threads;
-    cout << "block_size: " << block_size << endl;
+    if (debug) cout << "block_size: " << block_size << endl;
 
     vector<T> results(num_threads);
     vector<thread> threads(num_threads - 1);
 
     Iter block_begin = begin;
     for (unsigned long i = 0; i < (num_threads - 1); i++) {
-        Iter block_end = block_begin;
-        advance(block_end, block_size);
-        threads[i] = thread(accumulate_block<Iter, T>(), block_begin, block_end, ref(results[i]));
+        Iter block_end = block_begin + block_size;
+        // advance(block_end, block_size);
+        threads[i] = thread(accumulate_block<Iter, T>(), 
+                            block_begin, block_end, ref(results[i])); // 到thread()的args被移动或按值复制。若传递引用参数，包装它
         block_begin = block_end;
     }
     accumulate_block<Iter, T>()(block_begin, end, results[num_threads - 1]);
-    for_each(threads.begin(), threads.end(), mem_fn(&thread::join));
+    for_each(threads.begin(), threads.end(), [](thread& th){th.join();});
 
     return accumulate(results.begin(), results.end(), init);
 }
 
 int main() {
-    vector<int> nums{3,4,5,6};
-    int res = 0;
+    auto start_time = chrono::high_resolution_clock::now();
+    vector<int> nums(100000000, 1);
+
+    unsigned long long res = 0;
     cout << "The result is: " << endl;
-    cout << parallel_accumulate(nums.begin(), nums.end(), res);
+    cout << parallel_accumulate(nums.begin(), nums.end(), res) << endl;
+    // cout << accumulate(nums.begin(), nums.end(), res) << endl;
+    auto end_time = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time);
+    cout << "duration time is: " << duration.count() << " ms" << endl;
     return 0;
 }
