@@ -35,12 +35,15 @@ public:
 
 int i = 0;
 semaphore sp(1);
+mutex a_mtx;
 
 void test(){
     int num = 1e6;
     for (int k = 0; k < num; k++) {
         sp.P();
+        // a_mtx.lock();
         i = i + 1;
+        // a_mtx.unlock();
         sp.V();
     }
 }
