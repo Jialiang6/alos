@@ -165,12 +165,17 @@ int main() {
     if (up2.get() == nullptr && up3.get()) {
         cout << "显示赋值" << endl;
     }
+
     unique_ptr<Time> up4(new Time());
     unique_ptr<Date> up5(move(up4));
     cout << up5->year << endl;
     if (up4.get() == nullptr && up5.get()) {
         cout << "显示隐式转换赋值" << endl;
     }
+    // 基类不能隐式转向子类 // error
+    // unique_ptr<Date> up4(new Date());
+    // unique_ptr<Time> up5(move(up4));
+    // cout << up5->year << endl;
 
     return 0;
 }
