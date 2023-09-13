@@ -1,5 +1,12 @@
-#include <iostream>
+/*  总结：
+    1. scoped_ptr: 禁用拷贝构造和赋值
+    2. auto_ptr: 实现了特殊的移动拷贝构造和移动赋值，左值引用类型的智能指针对象被隐式移动了
+                这可能会出现问题
+    3. unique_ptr: 对于一块空间，只能由一个智能指针独占。实现了显示的移动拷贝构造和移动赋值
+                  同时实现指针的隐式类型转换，由子类向基类转换
+ */
 
+#include <iostream>
 using namespace std;
 
 
@@ -30,7 +37,10 @@ private:
     scoped_ptr& operator=(scoped_ptr& p);
 public:
     explicit scoped_ptr(T* ptr = nullptr): ptr_(ptr) {}
-    ~scoped_ptr() { delete[] ptr_; }
+    ~scoped_ptr() { 
+        delete[] ptr_; 
+        ptr_ = nullptr;
+    }
     T* get() const noexcept {return ptr_;}
     T& operator*() const {return *ptr_;}
     T* operator->() const {return ptr_;}
@@ -47,6 +57,7 @@ public:
     explicit auto_ptr(T* ptr = nullptr): ptr_(ptr) {}
     ~auto_ptr(){
         delete[] ptr_;
+        ptr_ = nullptr;
     }
     T* get() const noexcept {return ptr_;}
     T& operator*() const {return *ptr_;}
@@ -82,34 +93,37 @@ private:
     unique_ptr& operator=(const unique_ptr& p);
 public:
     explicit unique_ptr(T* ptr = nullptr): ptr_(ptr) {}
-    ~unique_ptr() { delete[] ptr_; }
+    ~unique_ptr() { 
+        delete[] ptr_; 
+        ptr_ = nullptr;
+    }
     T* get() const noexcept {return ptr_; }
     T& operator*() const { return *ptr_; }
     T* operator->() const { return ptr_; }
     operator bool() const { return ptr_; }
 
-    unique_ptr(unique_ptr&& p) { // 这里改成了右值引用
-        ptr_ = p.release();
-    }
+    // 没有隐式类型转换的构造函数
+    // unique_ptr(unique_ptr&& p) { // 这里改成了右值引用
+    //     ptr_ = p.ptr_;
+    //     p.ptr_ = nullptr;
+    // }
 
-    // 实现指针的隐式类型转换
+    // 带模板实现指针的隐式类型转换
     // 子类向基类的隐式转换
+    template<typename U> friend class unique_ptr;
+    // 模板各个实例并不天然frientd，不能互访私有成员，需显示声明
     template<typename U>
     unique_ptr(unique_ptr<U>&& p) {
-        ptr_ = p.release(); // 这样的实现避开继承中访问成员的权限问题
+        U* ptr = p.ptr_;
+        p.ptr_ = nullptr;
+        ptr_ = ptr;
     }
 
-    // unique_ptr& operator=(unique_ptr p) { // 不加引用相当于调用了拷贝
-                                        //(或移动，取决于实现了什么)构造
+    // unique_ptr& operator=(unique_ptr p) {   // 不加引用相当于调用了拷贝
+                                               //(或移动，取决于实现了什么)构造
     unique_ptr& operator=(unique_ptr&& p) { // 显示说明右值引用，可读性强，且效率更高
         p.swap(*this);
         return *this;
-    }
-
-    T *release() noexcept {
-        T *ptr = ptr_;
-        ptr_ = nullptr;
-        return ptr;
     }
 
     void swap(unique_ptr& p) {
