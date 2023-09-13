@@ -166,7 +166,7 @@ int main() {
     cout << "use count of dsp2: " << dsp2.use_count() << endl; // 0
     // 同类转同类(基类转子类)，dynamic_cast,指针非空，此时空间被两者共有
     shared_ptr<Date> dsp3(new Time);
-    // shared_ptr<Time> dsp3(new Time); 与上行结果一致
+    // shared_ptr<Time> dsp3(new Time); // 与上行结果一致
     shared_ptr<Time> dsp4 = dynamic_pointer_cast<Time>(dsp3);
     cout << "use count of dsp3: " << dsp3.use_count() << endl; // 2
     cout << "use count of dsp4: " << dsp4.use_count() << endl; // 2
@@ -182,8 +182,8 @@ int main() {
     cout << "use count of ssp1: " << ssp1.use_count() << endl; // 2
     cout << "use count of ssp2: " << ssp2.use_count() << endl; // 2
     // 同类转同类(基类转子类)，static_cast,指针非空，此时空间被两者共有
-    shared_ptr<Date> ssp3(new Time);
-    // shared_ptr<Time> ssp3(new Time); 与上行结果一致
+    // shared_ptr<Date> ssp3(new Time);
+    shared_ptr<Time> ssp3(new Time); // 与上行结果一致
     shared_ptr<Time> ssp4 = static_pointer_cast<Time>(ssp3);
     cout << "use count of ssp3: " << ssp3.use_count() << endl; // 2
     cout << "use count of ssp4: " << ssp4.use_count() << endl; // 2
