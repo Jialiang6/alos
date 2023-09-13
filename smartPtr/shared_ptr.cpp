@@ -3,6 +3,7 @@
  */
 
 #include <iostream>
+#include <typeinfo>
 using namespace std;
 
 class Date {
@@ -159,43 +160,52 @@ int main() {
     }
 
     cout << "强制类型转换" << endl; // 基类Date,子类Time
-    // 基类转子类，dynamic_cast,指针为空，此时空间还是由dsp1拥有
-    shared_ptr<Date> dsp1(new Date);
+
+    // [dynamic_cast] 将基类指针/引用转换为子类的指针/引用，反之也行
+    // 使用前提(不是成功前提): 基类必须有虚函数（因为dynamic_cast靠虚函数表）
+    // 安全的转换：转换失败则返回空指针（成功说明没有空间越界）
+
+    // 基类转子类，转换指针类型，但指针为空，此时空间还是由dsp1拥有
+    shared_ptr<Date> dsp1(new Date); 
     shared_ptr<Time> dsp2 = dynamic_pointer_cast<Time>(dsp1);
     cout << "use count of dsp1: " << dsp1.use_count() << endl; // 1
     cout << "use count of dsp2: " << dsp2.use_count() << endl; // 0
-    // 同类转同类(基类转子类)，dynamic_cast,指针非空，此时空间被两者共有
-    shared_ptr<Date> dsp3(new Time);
-    // shared_ptr<Time> dsp3(new Time); // 与上行结果一致
-    shared_ptr<Time> dsp4 = dynamic_pointer_cast<Time>(dsp3);
+    // 同类转同类(基类转子类)，指针非空，此时空间被两者共有
+    shared_ptr<Date> dsp3(new Time);      // dsp1指针类型Date,指向Time的空间
+    // shared_ptr<Time> dsp3(new Time);   // 与上行结果一致
+    shared_ptr<Time> dsp4 = dynamic_pointer_cast<Time>(dsp3); // 空间不越界
     cout << "use count of dsp3: " << dsp3.use_count() << endl; // 2
     cout << "use count of dsp4: " << dsp4.use_count() << endl; // 2
-    // 子类转基类，dynamic_cast,指针非空，此时空间被两者共有
+    // 子类转基类，指针非空，此时空间被两者共有
     shared_ptr<Time> dsp5(new Time);
-    shared_ptr<Date> dsp6 = dynamic_pointer_cast<Date>(dsp5);
+    shared_ptr<Date> dsp6 = dynamic_pointer_cast<Date>(dsp5); // 空间不越界
     cout << "use count of dsp5: " << dsp5.use_count() << endl; // 2
     cout << "use count of dsp6: " << dsp6.use_count() << endl; // 2
 
-    // 基类转子类，static_cast
+    // [static_cast]（dynamic_cast里失败的也可转换成功,所以多态类最好用dynamic_cast,更安全）
+    // 告诉编译器明确需要转换，不加时编译器会报的错在加上不报错
+    // 但不能转换非继承类（C语言风格的却可以，例如用(A*)来转化一个*C）
+
+    // 基类转子类，dynamic_cast失败的类型转换这里也成功了（不安全,后面可能崩溃）
     shared_ptr<Date> ssp1(new Date);
     shared_ptr<Time> ssp2 = static_pointer_cast<Time>(ssp1);
     cout << "use count of ssp1: " << ssp1.use_count() << endl; // 2
     cout << "use count of ssp2: " << ssp2.use_count() << endl; // 2
-    // 同类转同类(基类转子类)，static_cast,指针非空，此时空间被两者共有
-    // shared_ptr<Date> ssp3(new Time);
-    shared_ptr<Time> ssp3(new Time); // 与上行结果一致
+    // 同类转同类(基类转子类)，指针非空，此时空间被两者共有
+    shared_ptr<Date> ssp3(new Time);
+    // shared_ptr<Time> ssp3(new Time); // 与上行结果一致
     shared_ptr<Time> ssp4 = static_pointer_cast<Time>(ssp3);
     cout << "use count of ssp3: " << ssp3.use_count() << endl; // 2
     cout << "use count of ssp4: " << ssp4.use_count() << endl; // 2
-    // 子类转基类，static_cast,指针非空，此时空间被两者共有
+    // 子类转基类，指针非空，此时空间被两者共有
     shared_ptr<Time> ssp5(new Time);
     shared_ptr<Date> ssp6 = static_pointer_cast<Date>(ssp5);
     cout << "use count of ssp5: " << ssp5.use_count() << endl; // 2
     cout << "use count of ssp6: " << ssp6.use_count() << endl; // 2
 
     shared_ptr<const int> cp1(new int);
-    shared_ptr<int> cp2 = const_pointer_cast<int>(cp1);
-    int a = reinterpret_pointer_cast<int>(cp2);
+    shared_ptr<int> cp2 = const_pointer_cast<int>(cp1); // const 转非const
+    int a = reinterpret_pointer_cast<int>(cp2); // 啥都能转，但不安全
     cout << a << endl;
     return 0;
 }
