@@ -18,11 +18,11 @@ void check() {
 
 int main() {
     main_thread = this_thread::get_id();
-    cout << "main_thread: " << main_thread << endl;
+    cout << "main_thread: " << main_thread << endl; // 1
     cout << "main thread exe: " << endl;
-    check();
+    check();  // 1
     cout << "in thread: " << endl;
     thread t(check);
-    t.join();
+    t.join(); // 2
     return 0;
 }

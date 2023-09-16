@@ -43,7 +43,7 @@ int main() {
 
     // thread t(&Z::do_something_in); // static member function
 
-    thread t(Y(), 10); // class-op
+    thread t(Y(), 10); // function-object
 
     // thread t([](){  // lambda function
     //     cout << "func_lambda" << endl;
