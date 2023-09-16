@@ -33,7 +33,7 @@ public:
     }
 };
 
-int i = 0;
+int cnt = 0;
 semaphore sp(1);
 mutex a_mtx;
 
@@ -42,7 +42,7 @@ void test(){
     for (int k = 0; k < num; k++) {
         sp.P();
         // a_mtx.lock();
-        i = i + 1;
+        cnt = cnt + 1;
         // a_mtx.unlock();
         sp.V();
     }
@@ -57,6 +57,6 @@ int main(int argc, const char* argv[]) {
     thread_test2.join();
 
     cout << "All threads joined." << endl;
-    cout << "now i is: " << i << endl;
+    cout << "now cnt is: " << cnt << endl;
     return 0;
 }
