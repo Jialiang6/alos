@@ -40,14 +40,16 @@ void create_print(priority_queue<Complex, vector<Complex>, T>& q) {
 }
 
 
-// cmp1
+// 题外话：函数指针，主要作用是打通数据与方法，让函数可以像对象一样传参和使用
+
+// cmp1: 函数
 bool cmp1(Complex& com_a, Complex& com_b) {
     int ra = com_a.get_real(), ia = com_a.get_imaginary();
     int rb = com_b.get_real(), ib = com_b.get_imaginary();
     return ra*ra + ia*ia < rb*rb + ib*ib;
 }
 
-// cmp2
+// cmp2： 函数对象/仿函数，实际上是一种类型，但 类名()这种形式相当于调用函数
 struct cmp2 {
     bool operator()(Complex& com_a, Complex& com_b) {
         int ra = com_a.get_real(), ia = com_a.get_imaginary();
@@ -56,13 +58,18 @@ struct cmp2 {
     }
 };
 
-// cmp3
+// cmp3： lambda表达式
 auto cmp3 = [&](Complex& com_a, Complex& com_b) {
     int ra = com_a.get_real(), ia = com_a.get_imaginary();
     int rb = com_b.get_real(), ib = com_b.get_imaginary();
     return ra*ra + ia*ia < rb*rb + ib*ib;
 };
 
+// 题外话：decltype()内是expression
+// decltype(cmp)返回的是函数类型而非指针类型，这里就是bool(Complex&, Complex&)
+// 一般当作形参的是函数指针，这里构造<>内需要的类型也是函数指针类型，即bool(*)(Compare&, Compare&)
+// 另外，制定了指针类型，构造函数里还要传入指针具体指向什么来初始化，不然就产生了野指针
+// lambda表达式是一种特殊情况，可以认为返回的是一个函数指针
 
 int main() {
     /*
@@ -71,7 +78,9 @@ int main() {
     */
 
     // cmp1
-    priority_queue<Complex, vector<Complex>, decltype(&cmp1)> q1(&cmp1);
+    // priority_queue<Complex, vector<Complex>, decltype(&cmp1)> q1(&cmp1);
+    priority_queue<Complex, vector<Complex>, decltype(cmp1)*> q1(cmp1);
+    // priority_queue<Complex, vector<Complex>, decltype(&cmp1)> q1(cmp1);
     // cmp2
     priority_queue<Complex, vector<Complex>, cmp2> q2;
     // cmp3
@@ -80,6 +89,7 @@ int main() {
     priority_queue<Complex, vector<Complex>> q4;
     
     create_print<decltype(&cmp1)>(q1);
+    // create_print<decltype(&cmp1)>(q1);
     create_print<cmp2>(q2);
     create_print<decltype(cmp3)>(q3);
     create_print<>(q4);
