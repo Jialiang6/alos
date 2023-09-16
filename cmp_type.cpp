@@ -14,7 +14,7 @@ public:
     Complex(int r, int i): real(r), imaginary(i) {}
     int get_real() const { return real; }
     int get_imaginary() const { return imaginary; }
-    // 最方便的就是类内定义
+    // 最方便的就是类内定义: cmp4
     bool operator<(const Complex& b) const {
         return this->real*this->real + this->imaginary*this->imaginary <
         b.get_real()*b.get_real() + b.get_imaginary()*b.get_imaginary();
@@ -40,12 +40,14 @@ void create_print(priority_queue<Complex, vector<Complex>, T>& q) {
 }
 
 
+// cmp1
 bool cmp1(Complex& com_a, Complex& com_b) {
     int ra = com_a.get_real(), ia = com_a.get_imaginary();
     int rb = com_b.get_real(), ib = com_b.get_imaginary();
     return ra*ra + ia*ia < rb*rb + ib*ib;
 }
 
+// cmp2
 struct cmp2 {
     bool operator()(Complex& com_a, Complex& com_b) {
         int ra = com_a.get_real(), ia = com_a.get_imaginary();
@@ -54,6 +56,7 @@ struct cmp2 {
     }
 };
 
+// cmp3
 auto cmp3 = [&](Complex& com_a, Complex& com_b) {
     int ra = com_a.get_real(), ia = com_a.get_imaginary();
     int rb = com_b.get_real(), ib = com_b.get_imaginary();
@@ -62,6 +65,11 @@ auto cmp3 = [&](Complex& com_a, Complex& com_b) {
 
 
 int main() {
+    /*
+        priority_queue<T, Container, Compare>
+        Compare为函数类型
+    */
+
     // cmp1
     priority_queue<Complex, vector<Complex>, decltype(&cmp1)> q1(&cmp1);
     // cmp2
@@ -75,6 +83,11 @@ int main() {
     create_print<cmp2>(q2);
     create_print<decltype(cmp3)>(q3);
     create_print<>(q4);
+
+    /*
+        sort(RandomIt first, RandomIt second, Compare cpmp)
+        comp为函数对象
+    */
 
     cout << "sort:" << endl;
     vector<Complex> nums;
