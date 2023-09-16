@@ -57,8 +57,9 @@ int main() {
 
     unsigned long long res = 0;
     cout << "The result is: " << endl;
-    cout << parallel_accumulate(nums.begin(), nums.end(), res) << endl;
-    // cout << accumulate(nums.begin(), nums.end(), res) << endl;
+    cout << parallel_accumulate(nums.begin(), nums.end(), res) << endl; // parallel
+    // cout << accumulate(nums.begin(), nums.end(), res) << endl;       // normal
+
     auto end_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time);
     cout << "duration time is: " << duration.count() << " ms" << endl;
