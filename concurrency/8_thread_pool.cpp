@@ -1,5 +1,5 @@
  
-// file:	ThreadPool.h
+// file:	thread_pool.cpp
 //
 // summary:	Implements the Thread Pool
 /**************************************************************************************************
@@ -9,8 +9,7 @@ std::future所引用的共享状态不能与任何其它异步返回的对象共
 一个future是一个对象，它可以从某个提供者的对象或函数中检索值,如果在不同的线程中，则它可以正确地同步此访问
  **************************************************************************************************/
  
-#ifndef THREAD_POOL_H
-#define THREAD_POOL_H
+
  
 #include <vector>
 #include <queue>
@@ -57,15 +56,12 @@ private:
 };
  
 // the constructor just launches some amount of workers
-inline ThreadPool::ThreadPool(size_t threads)
-    :   stop(false)
+ThreadPool::ThreadPool(size_t threads): stop(false)
 {
     for(size_t i = 0;i<threads;++i)
         workers.emplace_back(
-            [this]
-            {
-                for(;;)
-                {
+            [this] {
+                for(;;) {
                     std::function<void()> task;
  
                     {
@@ -92,8 +88,8 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
     using return_type = typename std::result_of<F(Args...)>::type;
  
     auto task = std::make_shared< std::packaged_task<return_type()> >(
-            std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-        );
+        std::bind(std::forward<F>(f), std::forward<Args>(args)...)
+    );
  
     std::future<return_type> res = task->get_future();
     {
@@ -121,15 +117,16 @@ inline ThreadPool::~ThreadPool()
         worker.join();
 }
  
-#endif
 
- 
+
+
+
 int st(int i) //线程函数
 {
-	std::cout << "hello " << i << std::endl;
-	//std::this_thread::sleep_for(std::chrono::seconds(1));
-	std::cout << "world " << i << std::endl;
-	return i * i;
+	printf("hello world %d\n", i);
+	// std::cout << "hello world " << i << std::endl;
+	// std::this_thread::sleep_for(std::chrono::seconds(1));
+	return i * i + 10;
 }
  
 int main()
@@ -140,14 +137,14 @@ int main()
     pool.enqueue(st, 1);
 	pool.enqueue(st, 2);
  
-	for (int i = 0; i < 8; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		results.emplace_back(
-			pool.enqueue([i] {
-				return st(i);
-			})
+			pool.enqueue([i](){ return st(i); })
 		);
 	}
- 
+
+    printf("results: \n");
+    // std::cout << "results: " << std::endl;
 	for (auto && result : results)
 		std::cout << result.get() << ' ';
 	std::cout << std::endl;
