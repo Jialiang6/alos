@@ -1,7 +1,7 @@
  
 // file:	thread_pool.cpp
 //
-// summary:	Implements the Thread Pool
+// summary:	定长n线程池。n个线程，一个任务队列
 /**************************************************************************************************
 C++11中的std::future是一个模板类。
 std::future提供了一种用于访问异步操作结果的机制。
@@ -46,7 +46,7 @@ public:
 private:
     // need to keep track of threads so we can join them
     std::vector< std::thread > workers;
-    // the task queue
+    // 存放task的阻塞队列
     std::queue< std::function<void()> > tasks;
     
     // synchronization 同步互斥
@@ -61,8 +61,8 @@ ThreadPool::ThreadPool(size_t threads): stop(false)
     for(size_t i = 0;i<threads;++i)
         workers.emplace_back(
             [this] {
+                std::function<void()> task;
                 for(;;) {
-                    std::function<void()> task;
  
                     {
                         std::unique_lock<std::mutex> lock(this->queue_mutex);
@@ -117,7 +117,6 @@ inline ThreadPool::~ThreadPool()
         worker.join();
 }
  
-
 
 
 
