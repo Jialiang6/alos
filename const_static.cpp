@@ -30,7 +30,7 @@ const int cg = 0; // 全局只读变量，全局可见，外部可访问(但声�
 // const int cgg; // error: 必须初始化
 
 static int si = 0; // 静态全局变量，全局可见，外部不可访问，生命周期为程序执行时，存储在数据段
-// static int sii; // ok, bss
+// static int sii; // ok, bss，在编译时分配空间，静态变量都是初始化后正式赋值
 static constexpr int cei = 0; // 显示声明更好，隐式也是static，全局可见，外部不可访问，生命周期程序，存储在数据段
 // constexpr int ceii; // error: 常量必须在声明时初始化，常量与只读变量的区别是在编译时就赋值
 
@@ -51,7 +51,7 @@ int main () {
     int l = 0; // 局部变量，{}内可见，生命周期为函数，存储在栈
     int* l1 = new int(1); // l1指针局部变量，与普通局部变量一样，但指向的区域放在堆
     const int cl = 0; // 局部只读变量，函数内可见，生命周期为函数，存储在栈
-    static int sl = 0; // 静态局部变量，函数内可见，生命周期为函数，存储在数据段
+    static int sl = 0; // 静态局部变量，函数内可见，生命周期为程序，存储在数据段
     constexpr int cel = 0+1; // 可用常量表达式声明,用变量声明会报错,eg., x+1，必须初始化
     int& icl = const_cast<int&>(cl);
 
