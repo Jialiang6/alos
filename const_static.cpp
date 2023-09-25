@@ -59,9 +59,11 @@ int main () {
     /* const 修饰数组 */
 
     const int a[5]{1,2}; // {1,2,0,0,0} 
-    // a[0] = 7; // error
-    // const修饰只读变量，但只读指的是不可直接修改，可间接
-    int* p = (int*)&a; // c++对类型检查更严格，c这里可以int*p = &a;
+    // a[0] = 7; // error,不可直接修改
+    
+    // const修饰只读变量，可间接修改：
+    // const int* p = a; // type of a: const int*
+    int* p = (int*)&a;   // c++对类型检查更严格，&a指的是int(*)[5],c这里可以int*p = &a;
     *p = 7;
     cout << *p <<endl; // 7
     cout << a[0]; // 7
