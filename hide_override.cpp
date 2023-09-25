@@ -23,9 +23,9 @@ public:
 };
 
 class son : public father {
-private:
-    string name;
-    int age;
+// private:
+//     string name;
+//     int age;
 public:
     son(string name, int age) : father(name, age) {}
     void eat(string food) {
@@ -34,9 +34,9 @@ public:
 };
 
 class daughter : public father {
-private:
-    string name;
-    int age;
+// private:
+//     string name;
+//     int age;
 public:
     daughter(string name, int age) : father(name, age) {}
     void eat(string food, bool happy) {
