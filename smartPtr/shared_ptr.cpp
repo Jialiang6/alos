@@ -161,7 +161,13 @@ int main() {
 
     cout << "强制类型转换" << endl; // 基类Date,子类Time
 
-    // [dynamic_cast] 将基类指针/引用转换为子类的指针/引用，反之也行
+    /**
+     * 1. dynamic_cast
+     *  1) 派生类指针或引用转为基类指针或引用(或反之)
+     * 唯一运行时转换，如果转换不成功不是报错或存在未知错误，而是返回空指针
+     * 使用条件是基类必须有虚函数(非成功条件)
+     */
+
     // 使用前提(不是成功前提): 基类必须有虚函数（因为dynamic_cast靠虚函数表）
     // 安全的转换：转换失败则返回空指针（成功说明没有空间越界）
 
@@ -181,6 +187,16 @@ int main() {
     shared_ptr<Date> dsp6 = dynamic_pointer_cast<Date>(dsp5); // 空间不越界
     cout << "use count of dsp5: " << dsp5.use_count() << endl; // 2
     cout << "use count of dsp6: " << dsp6.use_count() << endl; // 2
+
+    /**
+     * 2. static_cast
+     *  1) 基本类型间的转化
+     *  2）派生类指针或引用转为基类指针或引用(上行是安全的)
+     *  3）基类指针或引用转为派生类指针或引用(下行不安全)
+     * 区别于dynamic运行时转换，在编译期间强制转换
+     * 不可以转换不同普通类型的指针或引用(特例: 空指针)
+     * 也不能用于整型和指针或引用，可把任意类型转为void类型
+     */
 
     // [static_cast]（dynamic_cast里失败的也可转换成功,所以多态类最好用dynamic_cast,更安全）
     // 告诉编译器明确需要转换，不加时编译器会报的错在加上不报错
@@ -203,9 +219,24 @@ int main() {
     cout << "use count of ssp5: " << ssp5.use_count() << endl; // 2
     cout << "use count of ssp6: " << ssp6.use_count() << endl; // 2
 
+    /**
+     * 3. const_cast
+     *  1) const与非const的转化
+     *  2）volatile与非volatile的转化
+     * 只能作用于指针，不能作用于变量
+     */
+
     shared_ptr<const int> cp1(new int);
-    shared_ptr<int> cp2 = const_pointer_cast<int>(cp1); // const 转非const
-    int a = reinterpret_pointer_cast<int>(cp2); // 啥都能转，但不安全
+    shared_ptr<int> cp2 = const_pointer_cast<int>(cp1);
+
+    /**
+     * 4. reinterpret_cast
+     *  1) 改变指针或引用的类型(强大)
+     *  2）将指针或引用转化为一个足够长度的整型(或反之)
+     * 执行的过程是逐个比特复制，不安全
+     */
+
+    int a = reinterpret_pointer_cast<int>(cp2);
     cout << a << endl;
     return 0;
 }
