@@ -72,7 +72,7 @@ public:
 int main() {
     Person p1("lisa", 22);
     Person p2(p1);
-    Person p3(Person("Mike", 80));
+    Person p3(Person("Mike", 80)); // 这里直接构造了p3而不是先创建临时对象再拷贝
     p1.get();
     p2.get();
     p3.get();
@@ -81,10 +81,28 @@ int main() {
 
     p2 = Person("Bruce", 55);
     p2.get();
-    p1.get();
 
     // nullptr
-    p3.get();
+    // p3.get();
+
+    /*
+        构造函数
+        深拷贝构造函数
+        构造函数      
+        Name: lisa    
+        Name: lisa    
+        Name: Mike    
+        移动构造函数
+        Name: Mike
+        构造函数
+        移动赋值函数
+        析构函数
+        Name: Bruce
+        析构函数
+        析构函数
+        析构函数
+        析构函数 
+    */
 
     return 0;
 }
