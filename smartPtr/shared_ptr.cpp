@@ -177,7 +177,7 @@ int main() {
     cout << "use count of dsp1: " << dsp1.use_count() << endl; // 1
     cout << "use count of dsp2: " << dsp2.use_count() << endl; // 0
     // 同类转同类(基类转子类)，指针非空，此时空间被两者共有
-    shared_ptr<Date> dsp3(new Time);      // dsp1指针类型Date,指向Time的空间
+    shared_ptr<Date> dsp3(new Time);      // dsp3指针类型Date,指向Time的空间
     // shared_ptr<Time> dsp3(new Time);   // 与上行结果一致
     shared_ptr<Time> dsp4 = dynamic_pointer_cast<Time>(dsp3); // 空间不越界
     cout << "use count of dsp3: " << dsp3.use_count() << endl; // 2
