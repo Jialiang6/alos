@@ -126,4 +126,72 @@ public:
 };
 
 
+/**
+ * 3. 抽象工厂模式
+ * 
+ */
+
+class OptAddNeg : public Opt {
+    std::string getRes() const;
+};
+class OptSubNeg : public Opt {
+    std::string getRes() const;
+};
+class OptMulNeg : public Opt {
+    std::string getRes() const;
+};
+class OptDivNeg : public Opt {
+    std::string getRes() const;
+};
+
+inline std::string OptAddNeg::getRes() const
+{
+    return std::to_string(-stoi(getA()) - stoi(getB()));
+}
+inline std::string OptSubNeg::getRes() const
+{
+    return std::to_string(-stoi(getA()) + stoi(getB()));
+}
+inline std::string OptMulNeg::getRes() const
+{
+    return std::to_string(-stoi(getA()) * stoi(getB()));
+}
+inline std::string OptDivNeg::getRes() const
+{
+    return std::to_string(-stoi(getA()) / stoi(getB()));
+}
+
+class FactoryAbstract
+{
+public:
+    virtual Opt* createOpt() = 0;
+    virtual Opt* createOptNeg() = 0;
+};
+
+class AddFactoryAbs : public FactoryMethod
+{
+public:
+    Opt* createOpt();
+    Opt* createOptNeg();
+};
+class SubFactoryAbs : public FactoryMethod
+{
+public:
+    Opt* createOpt();
+    Opt* createOptNeg();
+};
+class MulFactoryAbs : public FactoryMethod
+{
+public:
+    Opt* createOpt();
+    Opt* createOptNeg();
+};
+class DivFactoryAbs : public FactoryMethod
+{
+public:
+    Opt* createOpt();
+    Opt* createOptNeg();
+};
+
+
 #endif
