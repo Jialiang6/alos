@@ -6,6 +6,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <chrono>
 
 using namespace std;
 
@@ -19,17 +20,29 @@ public:
     semaphore(int val): sem(val), wakeups(0) {}
     void P() {
         unique_lock<mutex> lock(mtx);
-        if (--sem < 0) {
-            cv.wait(lock, [&](){return wakeups > 0;});
-            --wakeups;
-        }
+        // if (--sem < 0) {
+        //     cv.wait(lock, [&](){return wakeups > 0;});
+        //     // cv.wait(lock); // 由于虚假唤醒，没条件谓词或者加while就是会比较慢，原因不详
+        //     --wakeups;
+        // }
+
+        // 节省wakeu的实现方式(但不直观)：
+        cv.wait(lock, [&](){return sem > 0;});
+        // if (sem <= 0) { // 存在虚假唤醒-> cnt: 2998548
+        //     cv.wait(lock);
+        // }
+        --sem;
     }
     void V() {
         lock_guard<mutex> lock(mtx);
-        if (++sem <= 0) {
-            ++wakeups;
-            cv.notify_one();
-        }
+        // if (++sem <= 0) {
+        //     ++wakeups;
+        //     cv.notify_one();
+        // }
+
+        // 节省wakeu的实现方式(但不直观)：
+        ++sem;
+        cv.notify_one();
     }
 };
 
@@ -49,14 +62,20 @@ void test(){
 }
 
 int main(int argc, const char* argv[]) {
+    auto start_time = chrono::high_resolution_clock::now();
     cout << "Start thread" << endl;
     thread thread_test1( test );
     thread thread_test2( test );
+    thread thread_test3( test );
 
     thread_test1.join();
     thread_test2.join();
+    thread_test3.join();
 
     cout << "All threads joined." << endl;
     cout << "now cnt is: " << cnt << endl;
+    auto end_time = chrono::high_resolution_clock::now();
+    auto duration_time = chrono::duration_cast<chrono::milliseconds>(end_time-start_time);
+    cout << "duration time: " << duration_time.count() << " ms" << endl;
     return 0;
 }
