@@ -170,7 +170,7 @@ public:
         }
         readers++;
         rCntMtx.V();
-        
+        rMtx.V();
     }
     void ReadUnLock() {
         rCntMtx.P();
@@ -179,7 +179,6 @@ public:
             wMtx.V();
         }
         rCntMtx.V();
-        rMtx.V();
     }
     void WriteLock() {
         wCntMtx.P();
