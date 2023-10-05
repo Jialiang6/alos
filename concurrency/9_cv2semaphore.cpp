@@ -26,7 +26,7 @@ public:
         //     --wakeups;
         // }
 
-        // 节省wakeu的实现方式(但不直观)：
+        // 节省wakeup的实现方式(但不直观)：
         cv.wait(lock, [&](){return sem > 0;});
         // if (sem <= 0) { // 存在虚假唤醒-> cnt: 2998548
         //     cv.wait(lock);
@@ -40,7 +40,7 @@ public:
         //     cv.notify_one();
         // }
 
-        // 节省wakeu的实现方式(但不直观)：
+        // 节省wakeup的实现方式(但不直观)：
         ++sem;
         cv.notify_one();
     }
