@@ -210,6 +210,7 @@ void bucket_sort(vector<int>& nums) { // n+k,n2,n,n+k,Y
 
 // 限定条件：数的最大位数相同时，且复杂度较高，少用
 void radix_sort(vector<int>& nums) { // n*k,n*k,n*k,n+k,Y
+    // 声明一个获得一个数对应数位的数是多少的函数
     function<int(int, int)> getDigit = [](int num, int digit) {
         for (int i = 0; i < digit; i++) {
             num /= 10;
