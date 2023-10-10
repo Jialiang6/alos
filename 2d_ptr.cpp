@@ -8,7 +8,7 @@ int main() {
      */ 
 
     int a0[3] = {1,2,3};
-    int* p0 = a0;
+    int* p0 = a0; // a0的类型就是int*
 
     /**
      *  2D array
@@ -72,7 +72,8 @@ int main() {
      */
 
     int* p5[2] = {0, 0};
-    p5[0] = p4[0], p5[1] = p4[1];
+    p5[0] = a[0], p5[1] = a[1];
+    // p5[0] = p4[0], p5[1] = p4[1];
     cout << *(*(p5 + 1) + 2) << endl; // 6
 
     /*
@@ -94,7 +95,14 @@ int main() {
     int** p6 = &tmp_p6; // 这里只指向了二维数组的第一个元素
                         // 不能完全访问二维数组所有元素
     cout << **p6 << endl;             // 1
-    cout << *(*(p6 + 1) + 2) << endl; // 3, 不知道会访问到哪里
+    cout << *p6 << endl;              // 0x61fdb0
+    cout << *(p6+1) << endl;          // 0x61fdb0 (未定义行为,取决于编译器)
+    cout << *(*(p6 + 1) + 2) << endl; // 3
+    // cout << *(*(p6 - 1) + 2) << endl; // segment fault!
+
+    int ** p7;
+    int * p7_1;
+    p7 = &p7_1;
 
     return 0;
 }
