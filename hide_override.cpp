@@ -69,6 +69,7 @@ int main() {
     d->eat("tomato", true);
     // d->eat("tomato"); // error
     delete d; // dauther died. father died.
+
     father* fd = new daughter("Li", 13, "60kg");
     fd->eat("hamgburger");
     delete fd; // dauther died. father died.
@@ -76,9 +77,10 @@ int main() {
     // 多态, 虚函数覆写 （根据对象类型）
     father* s = new son("Yong", 13, "175cm");
     s->eat("Tofu");
+    delete s; // son died. father died.
+    
     // 重写参数列表个数和类型得一致
     // father* rd = new daughter("Lin", 12, "50kg"s);
     // rd->eat("tomato", true); // error
-    delete s; // son died. father died.
     return 0;
 }
