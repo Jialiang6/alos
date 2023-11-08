@@ -42,7 +42,9 @@ T parallel_accumulate(Iter begin, Iter end, T init) {
         Iter block_end = block_begin + block_size;
         // advance(block_end, block_size);
         threads[i] = thread(accumulate_block<Iter, T>(), 
-                            block_begin, block_end, ref(results[i])); // 到thread()的args被移动或按值复制。若传递引用参数，包装它
+                            block_begin, block_end, ref(results[i]));
+        // 到thread()的args的类型如果希望在函数中是左值引用，得加ref()显示说明，否则报错
+        // 因为传入thread()的arg要不被移动为右值引用，要不按值复制
         block_begin = block_end;
     }
     accumulate_block<Iter, T>()(block_begin, end, results[num_threads - 1]);
