@@ -114,9 +114,8 @@ public:
     // 模板各个实例并不天然frientd，不能互访私有成员，需显示声明
     template<typename U>
     unique_ptr(unique_ptr<U>&& p) {
-        U* ptr = p.ptr_;
+        ptr_ = p.ptr_;
         p.ptr_ = nullptr;
-        ptr_ = ptr;
     }
 
     // unique_ptr& operator=(unique_ptr p) {   // 不加引用相当于调用了拷贝

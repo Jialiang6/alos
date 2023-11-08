@@ -100,9 +100,5 @@ int main() {
     cout << *(*(p6 + 1) + 2) << endl; // 3
     // cout << *(*(p6 - 1) + 2) << endl; // segment fault!
 
-    int ** p7;
-    int * p7_1;
-    p7 = &p7_1;
-
     return 0;
 }
