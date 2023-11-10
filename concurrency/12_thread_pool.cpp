@@ -43,17 +43,21 @@ private:
     std::queue< std::function<void()> > tasks;
     
     // synchronization 同步互斥
-    std::mutex queue_mutex; //锁
-    std::condition_variable condition; //条件变量
-    bool stop;
+    std::mutex queue_mutex; // 锁，除了辅助cv以外，还锁住stop的更改
+    std::condition_variable condition; //条件变量，涉及队列的地方使用
+    bool stop; // 控制pool是否关闭，关闭以后所有worker对应的函数的内部cv都被唤醒，同时return结束函数
 };
  
 // the constructor just launches some amount of workers
 ThreadPool::ThreadPool(size_t threads): stop(false)
 {
     for(size_t i = 0;i<threads;++i)
+        // worker对应一个void函数，持续从tasks队列里取出队首的task
         workers.emplace_back(
             [this] {
+                // tasks中取出的task实际都是function<void()>对象
+                // 是一个lambda函数，封装了packaged_task对象，在函数内执行
+                // 函数返回值都通过future对象接收
                 std::function<void()> task;
                 for(;;) {
  
@@ -81,6 +85,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
     using return_type = typename std::result_of<F(Args...)>::type;
  
     auto task = std::make_shared< std::packaged_task<return_type()> >(
+        // packaged_task包装要运行的函数，这里用bind和forward完美转发这个函数
         std::bind(std::forward<F>(f), std::forward<Args>(args)...)
     );
  
@@ -105,7 +110,9 @@ inline ThreadPool::~ThreadPool()
         std::unique_lock<std::mutex> lock(queue_mutex);
         stop = true;
     }
+    // 把stop标记为true，再通知所有worker，return它们的函数
     condition.notify_all();
+    // josin所有worker以后，所有worker安全结束，main就结束
     for(std::thread &worker: workers)
         worker.join();
 }
@@ -116,8 +123,6 @@ inline ThreadPool::~ThreadPool()
 int st(int i) //线程函数
 {
 	printf("hello world %d\n", i);
-	// std::cout << "hello world " << i << std::endl;
-	// std::this_thread::sleep_for(std::chrono::seconds(1));
 	return i * i + 10;
 }
  
