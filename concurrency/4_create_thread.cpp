@@ -46,7 +46,7 @@ int main() {
 
     // thread t(&do_something);            // function pointer
     // typedef void (*func_ptr)();
-    // func_ptr fp = &do_something;
+    // func_ptr fp = &do_something;        // == void (*fp)() = &do_something;
     // thread t(fp);                       // function pointer
 
     // X x;

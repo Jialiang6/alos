@@ -4,7 +4,7 @@
 #include <thread>
 #include <chrono>
 using namespace std::chrono_literals;
-// wait_for(mtx, rel_time, pred) == wiat_until(mtx, now+rel_time, pred)
+// wait_for(mtx, rel_time, pred) == wait_until(mtx, now+rel_time, pred)
 /*
     wait_for往下走只有两种情况：
      1）超时，则返回false

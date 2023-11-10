@@ -13,15 +13,16 @@ public:
   ThreadSafeCounter(): value_(0) {}
  
   // 多个线程可以同时读取 counter 计数
-  unsigned int get() const {
+  void read() const {
     std::shared_lock lck(mutex_);
-    return value_;
+    printf("id: %d, cnt: %d\n", std::this_thread::get_id(), value_);
   }
  
   // 只有1个线程可以修改 counter 计数
-  void increment() {
+  void write() {
     std::unique_lock lck(mutex_);
     value_++;
+    printf("[w] id: %d, cnt: %d\n", std::this_thread::get_id(), value_);
   }
  
   // 只有1个线程可以修改 counter 计数
@@ -34,34 +35,45 @@ public:
 int main() {
   ThreadSafeCounter counter;
  
-  auto increment_and_print = [&counter]() {
-    for (int i = 0; i < 4; i++) {
-      counter.increment();
-      printf("id: %d, cnt: %d\n", std::this_thread::get_id(), counter.get());
+  auto write = [&counter]() {
+    for (int i = 0; i < 1; i++) {
+      counter.write();
     }
   };
 
-  std::thread threads[5];
-  for (int i = 0; i < 3; i++) {
-    threads[i] = std::thread(increment_and_print);
+  auto read = [&]() {
+    for (int i = 0; i < 3; i++) {
+      counter.read();
+    }
+  };
+
+  int num_threads = 8;
+  std::thread threads[num_threads];
+  for (int i = 0; i < num_threads; i++) {
+    if ((i&1) == 0) threads[i] = std::thread(write);
+    if ((i&1) == 1) threads[i] = std::thread(read);
   }
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < num_threads; i++) {
     threads[i].join();
   }
   return 0;
 }
-// 写有序+1，读可以乱序
+// 写有序互斥+1，读可以并发
 /*
-id: 2, cnt: 1
-id: 2, cnt: 4
-id: 2, cnt: 5
-id: 2, cnt: 6
-id: 4, cnt: 3
-id: 3, cnt: 2
-id: 3, cnt: 8
-id: 4, cnt: 7
-id: 4, cnt: 10
-id: 3, cnt: 9
-id: 4, cnt: 11
-id: 3, cnt: 12
+[w] id: 2, cnt: 1
+id: 3, cnt: 1
+[w] id: 4, cnt: 2
+id: 5, cnt: 2
+[w] id: 6, cnt: 3
+id: 3, cnt: 3
+id: 7, cnt: 3
+[w] id: 8, cnt: 4
+id: 5, cnt: 4
+id: 5, cnt: 4
+id: 3, cnt: 4
+id: 7, cnt: 4
+id: 7, cnt: 4
+id: 9, cnt: 4
+id: 9, cnt: 4
+id: 9, cnt: 4
 */
