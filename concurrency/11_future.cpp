@@ -32,13 +32,13 @@ void testPromise() { // 需要显式启动线程并把promise对象传递给线�
     t.join();
 }
 
-void testPackagedTask() {
-    packaged_task<int()> pTask([](){
+void testPackagedTask() { // 仍需显示启动线程去执行函数
+    packaged_task<int()> pTask([](){ // 包装一个函数
         this_thread::sleep_for(chrono::seconds(1));
         return 2;
     });
-    future<int> fut = pTask.get_future();
-    thread t(move(pTask));
+    future<int> fut = pTask.get_future(); // 消费者绑定
+    thread t(move(pTask)); // 启动线程执行函数
 
     int x = fut.get();
     cout << "[PT] value: " << x << '\n';
@@ -46,7 +46,7 @@ void testPackagedTask() {
     t.join();
 }
 
-void testAsync() {
+void testAsync() { // 最简洁的写法
     future<int> fut = async([](){
         this_thread::sleep_for(chrono::seconds(1));
         return 3;
