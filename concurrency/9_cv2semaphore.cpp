@@ -13,24 +13,17 @@ using namespace std;
 class semaphore {
 private:
     int sem;
-    int wakeups;
     mutex mtx;
     condition_variable cv;
 public:
-    semaphore(int val): sem(val), wakeups(0) {}
+    semaphore(int val): sem(val) {}
     void P() {
         unique_lock<mutex> lock(mtx);
         // if (--sem < 0) {
-        //     cv.wait(lock, [&](){return wakeups > 0;});
-        //     // cv.wait(lock); // 由于虚假唤醒，没条件谓词或者加while就是会比较慢，原因不详
-        //     --wakeups;
+        //     cv.wait(lock); // 没条件谓词会很慢，跟底层实现有关
         // }
 
-        // 节省wakeup的实现方式(但不直观)：
-        cv.wait(lock, [&](){return sem > 0;});
-        // if (sem <= 0) { // 存在虚假唤醒-> cnt: 2998548
-        //     cv.wait(lock);
-        // }
+        cv.wait(lock, [&](){return sem > 0;}); // sem == 0的时候，到这里的线程都被阻塞
         --sem;
     }
     void V() {
@@ -40,7 +33,6 @@ public:
         //     cv.notify_one();
         // }
 
-        // 节省wakeup的实现方式(但不直观)：
         ++sem;
         cv.notify_one();
     }
