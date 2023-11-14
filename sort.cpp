@@ -80,13 +80,28 @@ void select_sort(vector<int>& nums) { // n2,n2,n2,1,N
 
 void heap_sort(vector<int>& nums) { // nlogn,nlogn,nlogn,1,N
     int n = nums.size();
-    // function<void(void)> heap_build = [&](){};
-    // heap_build();
-    make_heap(nums.begin(), nums.end());
-    function<void(int, int)> heap_adjust = [&](int a, int b){};
+    // 维护堆性质(升序用大顶堆)，n:数组大小，i:待维护下标
+    function<void(int, int)> heap_adjust = [&](int n, int i){
+        int largest = i;
+        int lson = i*2 + 1;
+        int rson = i*2 + 2;
+        if (lson < n && nums[largest] < nums[lson])
+            largest = lson;
+        if (rson < n && nums[largest] < nums[rson])
+            largest = rson;
+        if (largest != i) {
+            swap(nums[largest], nums[i]);
+            heap_adjust(n, largest);
+        }
+    };
+    // 建堆：从最后一个有子节点的根开始，依次维护堆性质
+    for (int i = n/2-1; i >= 0; i--) {
+        heap_adjust(n, i);
+    }
+    // 排序：依次将大顶堆的根与堆最后一个元素交换，堆大小-1，对根维护
     for (int i = n-1; i > 0; i--) {
         swap(nums[0], nums[i]);
-        heap_adjust(0, i-1);
+        heap_adjust(i, 0);
     }
 }
 
@@ -257,7 +272,7 @@ int main() {
     }
     cout << endl;
 
-    radix_sort(nums);
+    heap_sort(nums);
     cout << "Sorted nums: " << endl;
     for (auto& num : nums) {
         cout << num << ' ';
